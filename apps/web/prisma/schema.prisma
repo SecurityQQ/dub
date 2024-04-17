@@ -133,6 +133,7 @@ model ProjectInvite {
 model DefaultDomains {
   id          String   @id @default(cuid())
   linkprotocolsherocom        Boolean  @default(true)
+  phrocc      Boolean  @default(true)
   dubsh       Boolean @default(true)
   chatgpt     Boolean @default(true)
   sptifi      Boolean @default(true)
@@ -307,15 +308,15 @@ model LinkTag {
 
 model jackson_index {
   id       Int    @id @default(autoincrement())
-  key      String @db.VarChar(250)
-  storeKey String @db.VarChar(250)
+  key      String @db.VarChar(1500)
+  storeKey String @db.VarChar(1500)
 
   @@index([key], map: "_jackson_index_key")
   @@index([key, storeKey], map: "_jackson_index_key_store")
 }
 
 model jackson_store {
-  key        String    @id @db.VarChar(250)
+  key        String    @id @db.VarChar(1050)
   value      String    @db.Text
   iv         String?   @db.VarChar(64)
   tag        String?   @db.VarChar(64)
