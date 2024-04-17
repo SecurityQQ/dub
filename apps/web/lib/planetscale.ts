@@ -7,8 +7,8 @@ export const DATABASE_URL = process.env.DATABASE_URL;
 
 
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;  // Use the appropriate key that has the required permissions
+const supabaseUrl = process.env.SUPABASE_URL!;
+const supabaseKey = process.env.SUPABASE_ANON_KEY!;  // Use the appropriate key that has the required permissions
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -23,32 +23,55 @@ export const queryDatabase = async (table, match) => {
   return data;
 }
 
-export const getWorkspaceViaEdge = async (workspaceId) => {
+export const getWorkspaceViaEdge = async (workspaceId: string) => {
   const data = await queryDatabase('Project', { id: workspaceId.replace("ws_", "") });
-  return data.length > 0 ? data[0] : null;
+  return data && Array.isArray(data) && data.length > 0 ? (data[0] as WorkspaceProps) : null;
 };
 
-export const getDomainViaEdge = async (domain) => {
+export const getDomainViaEdge = async (domain: string) => {
   const data = await queryDatabase('Domain', { slug: domain });
-  return data.length > 0 ? data[0] : null;
+  return data && Array.isArray(data) && data.length > 0 ? (data[0] as DomainProps) : null;
 };
 
-export const checkIfKeyExists = async (domain, key) => {
+export const checkIfKeyExists = async (domain: string, key: string) => {
   const data = await queryDatabase('Link', { domain: domain, key: punyEncode(decodeURIComponent(key)) });
-  return data.length > 0;
+  return data && Array.isArray(data) && data.length > 0;
 };
 
-export const checkIfUserExists = async (userId) => {
+export const checkIfUserExists = async (userId: string) => {
   const data = await queryDatabase('User', { id: userId });
-  return data.length > 0;
+  return data && Array.isArray(data) && data.length > 0;
 };
 
-export const getLinkViaEdge = async (domain, key) => {
+export const getLinkViaEdge = async (domain: string, key: string) => {
   const data = await queryDatabase('Link', { domain: domain, key: punyEncode(decodeURIComponent(key)) });
-  return data.length > 0 ? data[0] : null;
+  return data && Array.isArray(data) && data.length > 0 ? (data[0] as {
+        id: string;
+        domain: string;
+        key: string;
+        url: string;
+        proxy: number;
+        title: string;
+        description: string;
+        image: string;
+        rewrite: number;
+        password: string | null;
+        expiresAt: string | null;
+        ios: string | null;
+        android: string | null;
+        geo: object | null;
+        projectId: string;
+        publicStats: number;
+      }): null;
 };
 
-export async function getDomainOrLink({ domain, key }) {
+export async function getDomainOrLink({
+  domain,
+  key,
+}: {
+  domain: string;
+  key?: string;
+}) {
   if (!key || key === "_root") {
     const data = await getDomainViaEdge(domain);
     if (!data) return null;
@@ -62,7 +85,15 @@ export async function getDomainOrLink({ domain, key }) {
   }
 }
 
-export async function getRandomKey({ domain, prefix, long }) {
+export async function getRandomKey({
+  domain,
+  prefix,
+  long,
+}: {
+  domain: string;
+  prefix?: string;
+  long?: boolean;
+}): Promise<string> {
   let key = long ? nanoid(69) : nanoid();
   if (prefix) {
     key = `${prefix.replace(/^\/|\/$/g, "")}/${key}`;

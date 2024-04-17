@@ -33,8 +33,11 @@ export const GET = async (req: NextRequest) => {
       }
     }
 
+    const prefix = "";
+
     const response = await getRandomKey({
       domain,
+      prefix,  // Include the prefix here
       long: domain === "loooooooo.ng",
     });
     return NextResponse.json(response);
