@@ -1,3 +1,5 @@
+"use server"
+
 import { nanoid, punyEncode } from "@dub/utils";
 import { Pool } from 'pg';
 import { DomainProps, WorkspaceProps } from "./types";
