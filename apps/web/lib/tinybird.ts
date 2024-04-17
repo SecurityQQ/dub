@@ -102,7 +102,10 @@ export async function recordClick({
     root ? [
         supabase
           .from('Domain')
-          .update({ clicks: supabase.raw('clicks + 1'), lastClicked: supabase.raw('NOW()') })
+          .update({ 
+            clicks: supabase.rpc('increment_clicks', { domain_id: id }),  // Custom RPC function to increment clicks
+            lastClicked: new Date().toISOString()  // Using JavaScript to generate timestamp
+          })
           .eq('id', id),
         url &&
         supabase
@@ -110,7 +113,10 @@ export async function recordClick({
     ] : [
         supabase
           .from('Link')
-          .update({ clicks: supabase.raw('clicks + 1'), lastClicked: supabase.raw('NOW()') })
+          .update({ 
+            clicks: supabase.rpc('increment_clicks', { link_id: id }),  // Custom RPC function to increment clicks
+            lastClicked: new Date().toISOString()  // Using JavaScript to generate timestamp
+          })
           .eq('id', id),
         supabase
           .rpc('increment_project_usage', { link_id: id })
