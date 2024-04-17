@@ -11,7 +11,7 @@ const pool = new Pool({
   }
 });
 
-const queryDatabase = async (query: string, params: any[]) => {
+export const queryDatabase = async (query: string, params: any[]) => {
   const client = await pool.connect();
   try {
     const { rows } = await client.query(query, params);
@@ -62,6 +62,26 @@ export const getLinkViaEdge = async (domain: string, key: string) => {
     publicStats: number;
   } : null;
 };
+
+export async function getDomainOrLink({
+  domain,
+  key,
+}: {
+  domain: string;
+  key?: string;
+}) {
+  if (!key || key === "_root") {
+    const data = await getDomainViaEdge(domain);
+    if (!data) return null;
+    return {
+      ...data,
+      key: "_root",
+      url: data?.target,
+    };
+  } else {
+    return await getLinkViaEdge(domain, key);
+  }
+}
 
 export async function getRandomKey({
   domain,

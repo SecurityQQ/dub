@@ -1,4 +1,4 @@
-import { DATABASE_URL, conn } from "./planetscale";
+import { DATABASE_URL, queryDatabase } from "./planetscale";
 import z from "./zod";
 import { getAnalyticsQuerySchema } from "./zod/schemas/analytics";
 
@@ -119,12 +119,12 @@ export const getAnalytics = async ({
   // 2. interval is not defined
   // 3. linkId is defined
   if (endpoint === "clicks" && !interval && linkId) {
-    let response = await conn.execute(
+    let response = await queryDatabase(
       "SELECT clicks FROM Link WHERE `id` = ?",
       [linkId],
     );
     if (response.rows.length === 0) {
-      response = await conn.execute(
+      response = await queryDatabase(
         "SELECT clicks FROM Domain WHERE `id` = ?",
         [linkId],
       );

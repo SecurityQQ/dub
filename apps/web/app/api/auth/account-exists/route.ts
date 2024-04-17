@@ -1,5 +1,5 @@
 import { isWhitelistedEmail } from "@/lib/edge-config";
-import { DATABASE_URL, conn } from "@/lib/planetscale";
+import { DATABASE_URL, queryDatabase } from "@/lib/planetscale";
 import { ratelimit } from "@/lib/upstash";
 import { ipAddress } from "@vercel/edge";
 import { NextRequest, NextResponse } from "next/server";
@@ -25,8 +25,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ exists: true });
   }
 
-  const user = await conn
-    .execute("SELECT email FROM User WHERE email = ?", [email])
+  const user = await queryDatabase("SELECT email FROM User WHERE email = ?", [email])
     .then((res) => res.rows[0]);
 
   if (user) {

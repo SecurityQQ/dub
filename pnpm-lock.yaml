@@ -10,7 +10,10 @@ importers:
     dependencies:
       pg:
         specifier: ^8.11.5
-        version: 8.11.5
+        version: 8.11.5(pg-native@3.0.1)
+      pg-native:
+        specifier: ^3.0.1
+        version: 3.0.1
     devDependencies:
       '@dub/tailwind-config':
         specifier: workspace:*
@@ -43,7 +46,7 @@ importers:
         version: 0.20.4
       '@boxyhq/saml-jackson':
         specifier: ^1.14.2
-        version: 1.14.2
+        version: 1.14.2(pg-native@3.0.1)
       '@dub/tailwind-config':
         specifier: workspace:*
         version: link:../../packages/tailwind-config
@@ -2758,7 +2761,7 @@ packages:
       '@opentelemetry/semantic-conventions': 1.14.0
     dev: false
 
-  /@boxyhq/saml-jackson@1.14.2:
+  /@boxyhq/saml-jackson@1.14.2(pg-native@3.0.1):
     resolution: {integrity: sha512-E9TgvAHY3YxbUtXWgRqFTSl/SIhfExZyIn/51OTvIPnzLcaJeCJkdEMp6uEOJBVVIFJAQAemyxSqGb8LRgqZdQ==}
     engines: {node: '>=16', npm: '>=8'}
     dependencies:
@@ -2779,11 +2782,11 @@ packages:
       mysql2: 3.6.2
       node-forge: 1.3.1
       openid-client: 5.6.1
-      pg: 8.11.3
+      pg: 8.11.3(pg-native@3.0.1)
       redis: 4.6.10
       reflect-metadata: 0.1.13
       ripemd160: 2.0.2
-      typeorm: 0.3.17(mongodb@6.2.0)(mssql@10.0.1)(mysql2@3.6.2)(pg@8.11.3)(redis@4.6.10)
+      typeorm: 0.3.17(mongodb@6.2.0)(mssql@10.0.1)(mysql2@3.6.2)(pg-native@3.0.1)(pg@8.11.3)(redis@4.6.10)
       xml2js: 0.6.2
       xmlbuilder: 15.1.1
     transitivePeerDependencies:
@@ -8188,6 +8191,12 @@ packages:
     resolution: {integrity: sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==}
     engines: {node: '>=8'}
 
+  /bindings@1.5.0:
+    resolution: {integrity: sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==}
+    dependencies:
+      file-uri-to-path: 1.0.0
+    dev: false
+
   /bl@4.1.0:
     resolution: {integrity: sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w==}
     dependencies:
@@ -9923,6 +9932,10 @@ packages:
     dependencies:
       flat-cache: 3.1.0
 
+  /file-uri-to-path@1.0.0:
+    resolution: {integrity: sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==}
+    dev: false
+
   /fill-range@7.0.1:
     resolution: {integrity: sha512-qOo9F+dMUmC2Lcb4BbVvnKJxTPjCm+RRpe4gDuGrzkL7mEVl/djYSu2OdQ2Pa302N4oqkSg9ir6jaLWJ2USVpQ==}
     engines: {node: '>=8'}
@@ -10885,6 +10898,10 @@ packages:
       is-docker: 2.2.1
     dev: false
 
+  /isarray@0.0.1:
+    resolution: {integrity: sha512-D2S+3GLxWH+uhrNEcoh/fnmYeP8E8/zHl644d/jdA0g2uyXvy3sb0qxotE+ne0LtccHknQzWwZEzhak7oJ0COQ==}
+    dev: false
+
   /isarray@1.0.0:
     resolution: {integrity: sha512-VLghIWNM6ELQzo7zwmcg0NmTVyWKYjvIeM83yjp0wRDTmUnrM678fQbcKBo6n2CJEF0szoG//ytg+TKla89ALQ==}
 
@@ -11279,6 +11296,14 @@ packages:
     dependencies:
       prelude-ls: 1.2.1
       type-check: 0.4.0
+
+  /libpq@1.8.12:
+    resolution: {integrity: sha512-4lUY9BD9suz76mVS0kH4rRgRy620g/c9YZH5GYC3smfIpjtj6KiPuQ4IwQSHSZMMMhMM3tBFrYUrw8mHOOZVeg==}
+    requiresBuild: true
+    dependencies:
+      bindings: 1.5.0
+      nan: 2.19.0
+    dev: false
 
   /lie@3.3.0:
     resolution: {integrity: sha512-UaiMJzeWRlEujzAuw5LokY1L5ecNQYZKfmyZ9L7wDHb/p5etKaxXhohBcrw0EYby+G/NA52vRSN4N39dxHAIwQ==}
@@ -12423,6 +12448,10 @@ packages:
       lru-cache: 7.18.3
     dev: false
 
+  /nan@2.19.0:
+    resolution: {integrity: sha512-nO1xXxfh/RWNxfd/XPfbIfFk5vgLsAxUR9y5O0cHMJu/AW9U95JLXqthYHjEp+8gQ5p96K9jUp8nbVOxCdRbtw==}
+    dev: false
+
   /nanoid@3.3.6:
     resolution: {integrity: sha512-BGcqMMJuToF7i1rt+2PWSNVnWIkGCU78jBG3RxO/bZlnZPK2Cmi2QaffxGO/2RvWi9sL+FAiRiXMgsyxQ1DIDA==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
@@ -13037,12 +13066,20 @@ packages:
     engines: {node: '>=4.0.0'}
     dev: false
 
+  /pg-native@3.0.1:
+    resolution: {integrity: sha512-LBVNWkNh0fVx/cienARRP2y22J5OpUsKBe0TpxzAx3arEUUdIs77aLSAHS3scS7SMaqc+OkG40CEu5fN0/cjIw==}
+    dependencies:
+      libpq: 1.8.12
+      pg-types: 1.13.0
+      readable-stream: 1.0.31
+    dev: false
+
   /pg-pool@3.6.1(pg@8.11.3):
     resolution: {integrity: sha512-jizsIzhkIitxCGfPRzJn1ZdcosIt3pz9Sh3V01fm1vZnbnCMgmGl5wvGGdNN2EL9Rmb0EcFoCkixH4Pu+sP9Og==}
     peerDependencies:
       pg: '>=8.0'
     dependencies:
-      pg: 8.11.3
+      pg: 8.11.3(pg-native@3.0.1)
     dev: false
 
   /pg-pool@3.6.2(pg@8.11.5):
@@ -13050,7 +13087,7 @@ packages:
     peerDependencies:
       pg: '>=8.0'
     dependencies:
-      pg: 8.11.5
+      pg: 8.11.5(pg-native@3.0.1)
     dev: false
 
   /pg-protocol@1.6.0:
@@ -13059,6 +13096,16 @@ packages:
 
   /pg-protocol@1.6.1:
     resolution: {integrity: sha512-jPIlvgoD63hrEuihvIg+tJhoGjUsLPn6poJY9N5CnlPd91c2T18T/9zBtLxZSb1EhYxBRoZJtzScCaWlYLtktg==}
+    dev: false
+
+  /pg-types@1.13.0:
+    resolution: {integrity: sha512-lfKli0Gkl/+za/+b6lzENajczwZHc7D5kiUCZfgm914jipD2kIOIvEkAhZ8GrW3/TUoP9w8FHjwpPObBye5KQQ==}
+    dependencies:
+      pg-int8: 1.0.1
+      postgres-array: 1.0.3
+      postgres-bytea: 1.0.0
+      postgres-date: 1.0.7
+      postgres-interval: 1.2.0
     dev: false
 
   /pg-types@2.2.0:
@@ -13072,7 +13119,7 @@ packages:
       postgres-interval: 1.2.0
     dev: false
 
-  /pg@8.11.3:
+  /pg@8.11.3(pg-native@3.0.1):
     resolution: {integrity: sha512-+9iuvG8QfaaUrrph+kpF24cXkH1YOOUeArRNYIxq1viYHZagBxrTno7cecY1Fa44tJeZvaoG+Djpkc3JwehN5g==}
     engines: {node: '>= 8.0.0'}
     peerDependencies:
@@ -13084,6 +13131,7 @@ packages:
       buffer-writer: 2.0.0
       packet-reader: 1.0.0
       pg-connection-string: 2.6.2
+      pg-native: 3.0.1
       pg-pool: 3.6.1(pg@8.11.3)
       pg-protocol: 1.6.0
       pg-types: 2.2.0
@@ -13092,7 +13140,7 @@ packages:
       pg-cloudflare: 1.1.1
     dev: false
 
-  /pg@8.11.5:
+  /pg@8.11.5(pg-native@3.0.1):
     resolution: {integrity: sha512-jqgNHSKL5cbDjFlHyYsCXmQDrfIX/3RsNwYqpd4N0Kt8niLuNoRNH+aazv6cOd43gPh9Y4DjQCtb+X0MH0Hvnw==}
     engines: {node: '>= 8.0.0'}
     peerDependencies:
@@ -13102,6 +13150,7 @@ packages:
         optional: true
     dependencies:
       pg-connection-string: 2.6.4
+      pg-native: 3.0.1
       pg-pool: 3.6.2(pg@8.11.5)
       pg-protocol: 1.6.1
       pg-types: 2.2.0
@@ -13309,6 +13358,11 @@ packages:
       nanoid: 3.3.7
       picocolors: 1.0.0
       source-map-js: 1.2.0
+    dev: false
+
+  /postgres-array@1.0.3:
+    resolution: {integrity: sha512-5wClXrAP0+78mcsNX3/ithQ5exKvCyK5lr5NEEEeGwwM6NJdQgzIJBVxLvRW+huFpX92F2QnZ5CcokH0VhK2qQ==}
+    engines: {node: '>=0.10.0'}
     dev: false
 
   /postgres-array@2.0.0:
@@ -14006,6 +14060,15 @@ packages:
       normalize-package-data: 2.5.0
       parse-json: 5.2.0
       type-fest: 0.6.0
+    dev: false
+
+  /readable-stream@1.0.31:
+    resolution: {integrity: sha512-tco/Dwv1f/sgIgN6CWdj/restacPKNskK6yps1981ivH2ZmLYcs5o5rVzL3qaO/cSkhN8hYOMWs7+glzOLSgRg==}
+    dependencies:
+      core-util-is: 1.0.3
+      inherits: 2.0.4
+      isarray: 0.0.1
+      string_decoder: 0.10.31
     dev: false
 
   /readable-stream@2.1.5:
@@ -14888,7 +14951,6 @@ packages:
 
   /string_decoder@0.10.31:
     resolution: {integrity: sha512-ev2QzSzWPYmy9GuqfIVildA4OdcGLeFZQrq5ys6RtiuF+RQQiZWr8TZNyAcuVXyQRYfEO+MsoB/1BuQVhOJuoQ==}
-    dev: true
 
   /string_decoder@1.1.1:
     resolution: {integrity: sha512-n/ShnvDi6FHbbVfviro+WojiFzv+s8MPMHBczVePfUpDJLwoLT0ht1l4YwBCbi8pJAveEEdnkHyPyTP/mzRfwg==}
@@ -15606,7 +15668,7 @@ packages:
       is-typed-array: 1.1.12
     dev: false
 
-  /typeorm@0.3.17(mongodb@6.2.0)(mssql@10.0.1)(mysql2@3.6.2)(pg@8.11.3)(redis@4.6.10):
+  /typeorm@0.3.17(mongodb@6.2.0)(mssql@10.0.1)(mysql2@3.6.2)(pg-native@3.0.1)(pg@8.11.3)(redis@4.6.10):
     resolution: {integrity: sha512-UDjUEwIQalO9tWw9O2A4GU+sT3oyoUXheHJy4ft+RFdnRdQctdQ34L9SqE2p7LdwzafHx1maxT+bqXON+Qnmig==}
     engines: {node: '>= 12.9.0'}
     hasBin: true
@@ -15677,7 +15739,8 @@ packages:
       mongodb: 6.2.0(@aws-sdk/credential-providers@3.433.0)
       mssql: 10.0.1
       mysql2: 3.6.2
-      pg: 8.11.3
+      pg: 8.11.3(pg-native@3.0.1)
+      pg-native: 3.0.1
       redis: 4.6.10
       reflect-metadata: 0.1.13
       sha.js: 2.4.11
