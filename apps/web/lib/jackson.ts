@@ -26,8 +26,8 @@ const opts: JacksonOption = {
     type: "postgres",    // Changed type to 'postgres'
     url: process.env.DATABASE_URL as string,
     ssl: {
-      // rejectUnauthorized: false,
-       rejectUnauthorized: true,
+      rejectUnauthorized: false,
+       // rejectUnauthorized: true,
     },
   },
   idpEnabled: true, // to allow folks to SSO directly from their IDP
