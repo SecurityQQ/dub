@@ -9,7 +9,7 @@ import {
 import { ipAddress } from "@vercel/edge";
 import { NextRequest, userAgent } from "next/server";
 import { detectBot, detectQr, getIdentityHash } from "./middleware/utils";
-import { queryDatabase } from "./planetscale";
+import { supabase } from "./planetscale";
 import { LinkProps } from "./types";
 import { ratelimit } from "./upstash";
 
@@ -99,29 +99,22 @@ export async function recordClick({
     // increment the click count for the link or domain (based on their ID)
     // also increment the usage count for the workspace
     // and then we have a cron that will reset it at the start of new billing cycle
-    root
-      ? [
-          queryDatabase(
-            "UPDATE Domain SET clicks = clicks + 1, lastClicked = NOW() WHERE id = ?",
-            [id],
-          ),
-          // only increment workspace clicks if there is a destination URL configured (not placeholder landing page)
-          url &&
-            queryDatabase(
-              "UPDATE Project p JOIN Domain d ON p.id = d.projectId SET p.usage = p.usage + 1 WHERE d.id = ?",
-              [id],
-            ),
-        ]
-      : [
-          queryDatabase(
-            "UPDATE Link SET clicks = clicks + 1, lastClicked = NOW() WHERE id = ?",
-            [id],
-          ),
-          queryDatabase(
-            "UPDATE Project p JOIN Link l ON p.id = l.projectId SET p.usage = p.usage + 1 WHERE l.id = ?",
-            [id],
-          ),
-        ],
+    root ? [
+        supabase
+          .from('Domain')
+          .update({ clicks: supabase.raw('clicks + 1'), lastClicked: supabase.raw('NOW()') })
+          .eq('id', id),
+        url &&
+        supabase
+          .rpc('increment_project_usage', { domain_id: id })
+    ] : [
+        supabase
+          .from('Link')
+          .update({ clicks: supabase.raw('clicks + 1'), lastClicked: supabase.raw('NOW()') })
+          .eq('id', id),
+        supabase
+          .rpc('increment_project_usage', { link_id: id })
+    ],
   ]);
 }
 

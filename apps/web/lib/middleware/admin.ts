@@ -2,7 +2,7 @@ import { parse } from "@/lib/middleware/utils";
 import { DUB_WORKSPACE_ID } from "@dub/utils";
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
-import { queryDatabase } from "../planetscale";
+import { supabase } from "../planetscale";
 import { UserProps } from "../types";
 
 export default async function AdminMiddleware(req: NextRequest) {
@@ -18,12 +18,23 @@ export default async function AdminMiddleware(req: NextRequest) {
     user?: UserProps;
   };
 
-  const response = await queryDatabase("SELECT projectId FROM ProjectUsers WHERE userId = ?", [
-      session?.user?.id,
-    ])
-    .then((res) => res.rows[0] as { projectId: string } | undefined);
+  if (!session?.user?.id) {
+    // Handle the case where there is no user session
+    return NextResponse.redirect(new URL('/login', req.url));
+  }
 
-  if (response?.projectId === DUB_WORKSPACE_ID) {
+  const { data, error } = await supabase
+    .from('ProjectUsers')
+    .select('projectId')
+    .eq('userId', session.user.id)
+    .single();
+
+  if (error) {
+    console.error('Error fetching project ID:', error.message);
+    return NextResponse.redirect(new URL('/login', req.url)); // Redirect or handle error as needed
+  }
+
+  if (data?.projectId === DUB_WORKSPACE_ID) {
     isAdmin = true;
   }
 

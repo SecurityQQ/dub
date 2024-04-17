@@ -1,75 +1,54 @@
 import { nanoid, punyEncode } from "@dub/utils";
-import { Pool } from 'pg';
 import { DomainProps, WorkspaceProps } from "./types";
+import { createClient } from '@supabase/supabase-js';
+
 
 export const DATABASE_URL = process.env.DATABASE_URL;
 
-const pool = new Pool({
-  connectionString: DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
 
-export const queryDatabase = async (query: string, params: any[]) => {
-  const client = await pool.connect();
-  try {
-    const { rows } = await client.query(query, params);
-    return rows;
-  } finally {
-    client.release();
-  }
+
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;  // Use the appropriate key that has the required permissions
+
+export const supabase = createClient(supabaseUrl, supabaseKey);
+
+
+export const queryDatabase = async (table, match) => {
+  let { data, error } = await supabase
+    .from(table)
+    .select('*')
+    .match(match);
+
+  if (error) throw new Error(`Supabase error: ${error.message}`);
+  return data;
+}
+
+export const getWorkspaceViaEdge = async (workspaceId) => {
+  const data = await queryDatabase('Project', { id: workspaceId.replace("ws_", "") });
+  return data.length > 0 ? data[0] : null;
 };
 
-export const getWorkspaceViaEdge = async (workspaceId: string) => {
-  const rows = await queryDatabase("SELECT * FROM Project WHERE id = $1", [workspaceId.replace("ws_", "")]);
-  return rows.length > 0 ? (rows[0] as WorkspaceProps) : null;
+export const getDomainViaEdge = async (domain) => {
+  const data = await queryDatabase('Domain', { slug: domain });
+  return data.length > 0 ? data[0] : null;
 };
 
-export const getDomainViaEdge = async (domain: string) => {
-  const rows = await queryDatabase("SELECT * FROM Domain WHERE slug = $1", [domain]);
-  return rows.length > 0 ? (rows[0] as DomainProps) : null;
+export const checkIfKeyExists = async (domain, key) => {
+  const data = await queryDatabase('Link', { domain: domain, key: punyEncode(decodeURIComponent(key)) });
+  return data.length > 0;
 };
 
-export const checkIfKeyExists = async (domain: string, key: string) => {
-  const rows = await queryDatabase("SELECT 1 FROM Link WHERE domain = $1 AND key = $2 LIMIT 1", [domain, punyEncode(decodeURIComponent(key))]);
-  return rows.length > 0;
+export const checkIfUserExists = async (userId) => {
+  const data = await queryDatabase('User', { id: userId });
+  return data.length > 0;
 };
 
-export const checkIfUserExists = async (userId: string) => {
-  const rows = await queryDatabase("SELECT 1 FROM User WHERE id = $1 LIMIT 1", [userId]);
-  return rows.length > 0;
+export const getLinkViaEdge = async (domain, key) => {
+  const data = await queryDatabase('Link', { domain: domain, key: punyEncode(decodeURIComponent(key)) });
+  return data.length > 0 ? data[0] : null;
 };
 
-export const getLinkViaEdge = async (domain: string, key: string) => {
-  const rows = await queryDatabase("SELECT * FROM Link WHERE domain = $1 AND key = $2", [domain, punyEncode(decodeURIComponent(key))]);
-  return rows.length > 0 ? rows[0] as {
-    id: string;
-    domain: string;
-    key: string;
-    url: string;
-    proxy: number;
-    title: string;
-    description: string;
-    image: string;
-    rewrite: number;
-    password: string | null;
-    expiresAt: string | null;
-    ios: string | null;
-    android: string | null;
-    geo: object | null;
-    projectId: string;
-    publicStats: number;
-  } : null;
-};
-
-export async function getDomainOrLink({
-  domain,
-  key,
-}: {
-  domain: string;
-  key?: string;
-}) {
+export async function getDomainOrLink({ domain, key }) {
   if (!key || key === "_root") {
     const data = await getDomainViaEdge(domain);
     if (!data) return null;
@@ -83,15 +62,7 @@ export async function getDomainOrLink({
   }
 }
 
-export async function getRandomKey({
-  domain,
-  prefix,
-  long,
-}: {
-  domain: string;
-  prefix?: string;
-  long?: boolean;
-}): Promise<string> {
+export async function getRandomKey({ domain, prefix, long }) {
   let key = long ? nanoid(69) : nanoid();
   if (prefix) {
     key = `${prefix.replace(/^\/|\/$/g, "")}/${key}`;
@@ -103,3 +74,4 @@ export async function getRandomKey({
     return key;
   }
 }
+

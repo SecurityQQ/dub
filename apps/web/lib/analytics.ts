@@ -1,4 +1,4 @@
-import { DATABASE_URL, queryDatabase } from "./planetscale";
+import { DATABASE_URL, supabase } from "./planetscale";
 import z from "./zod";
 import { getAnalyticsQuerySchema } from "./zod/schemas/analytics";
 
@@ -119,20 +119,36 @@ export const getAnalytics = async ({
   // 2. interval is not defined
   // 3. linkId is defined
   if (endpoint === "clicks" && !interval && linkId) {
-    let response = await queryDatabase(
-      "SELECT clicks FROM Link WHERE `id` = ?",
-      [linkId],
-    );
-    if (response.rows.length === 0) {
-      response = await queryDatabase(
-        "SELECT clicks FROM Domain WHERE `id` = ?",
-        [linkId],
-      );
-      if (response.rows.length === 0) {
-        return 0;
+    let { data, error } = await supabase
+      .from('Link')
+      .select('clicks')
+      .eq('id', linkId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching clicks from Link:', error.message);
+      return null;  // Or handle the error as appropriate for your application
+    }
+
+    if (!data) {
+      // If no clicks found in Link, check Domain
+      ({ data, error } = await supabase
+        .from('Domain')
+        .select('clicks')
+        .eq('id', linkId)
+        .single());
+
+      if (error) {
+        console.error('Error fetching clicks from Domain:', error.message);
+        return null;  // Or handle the error as appropriate for your application
+      }
+
+      if (!data) {
+        return 0;  // No clicks found in both tables
       }
     }
-    return response.rows[0]["clicks"];
+
+    return data.clicks;  // Return the number of clicks
   }
 
   let url = new URL(
