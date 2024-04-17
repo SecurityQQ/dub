@@ -1,112 +1,67 @@
 import { nanoid, punyEncode } from "@dub/utils";
-import { connect } from "@planetscale/database";
+import { Pool } from 'pg';
 import { DomainProps, WorkspaceProps } from "./types";
 
-export const DATABASE_URL =
-  process.env.PLANETSCALE_DATABASE_URL || process.env.DATABASE_URL;
+export const DATABASE_URL = process.env.DATABASE_URL;
 
-export const pscale_config = {
-  url: DATABASE_URL,
+const pool = new Pool({
+  connectionString: DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
+
+const queryDatabase = async (query: string, params: any[]) => {
+  const client = await pool.connect();
+  try {
+    const { rows } = await client.query(query, params);
+    return rows;
+  } finally {
+    client.release();
+  }
 };
 
-export const conn = connect(pscale_config);
-
 export const getWorkspaceViaEdge = async (workspaceId: string) => {
-  if (!DATABASE_URL) return null;
-
-  const { rows } =
-    (await conn.execute("SELECT * FROM Project WHERE id = ?", [
-      workspaceId.replace("ws_", ""),
-    ])) || {};
-
-  return rows && Array.isArray(rows) && rows.length > 0
-    ? (rows[0] as WorkspaceProps)
-    : null;
+  const rows = await queryDatabase("SELECT * FROM Project WHERE id = $1", [workspaceId.replace("ws_", "")]);
+  return rows.length > 0 ? (rows[0] as WorkspaceProps) : null;
 };
 
 export const getDomainViaEdge = async (domain: string) => {
-  if (!DATABASE_URL) return null;
-
-  const { rows } =
-    (await conn.execute("SELECT * FROM Domain WHERE slug = ?", [domain])) || {};
-
-  return rows && Array.isArray(rows) && rows.length > 0
-    ? (rows[0] as DomainProps)
-    : null;
+  const rows = await queryDatabase("SELECT * FROM Domain WHERE slug = $1", [domain]);
+  return rows.length > 0 ? (rows[0] as DomainProps) : null;
 };
 
 export const checkIfKeyExists = async (domain: string, key: string) => {
-  if (!DATABASE_URL) return null;
-
-  const { rows } =
-    (await conn.execute(
-      "SELECT 1 FROM Link WHERE domain = ? AND `key` = ? LIMIT 1",
-      [domain, punyEncode(decodeURIComponent(key))], // we need to make sure that the key is always URI-decoded + punycode-encoded (cause that's how we store it in MySQL)
-    )) || {};
-
-  return rows && Array.isArray(rows) && rows.length > 0;
+  const rows = await queryDatabase("SELECT 1 FROM Link WHERE domain = $1 AND key = $2 LIMIT 1", [domain, punyEncode(decodeURIComponent(key))]);
+  return rows.length > 0;
 };
 
 export const checkIfUserExists = async (userId: string) => {
-  if (!DATABASE_URL) return null;
-
-  const { rows } =
-    (await conn.execute("SELECT 1 FROM User WHERE id = ? LIMIT 1", [userId])) ||
-    {};
-
-  return rows && Array.isArray(rows) && rows.length > 0;
+  const rows = await queryDatabase("SELECT 1 FROM User WHERE id = $1 LIMIT 1", [userId]);
+  return rows.length > 0;
 };
 
 export const getLinkViaEdge = async (domain: string, key: string) => {
-  if (!DATABASE_URL) return null;
-
-  const { rows } =
-    (await conn.execute(
-      "SELECT * FROM Link WHERE domain = ? AND `key` = ?",
-      [domain, punyEncode(decodeURIComponent(key))], // we need to make sure that the key is always URI-decoded + punycode-encoded (cause that's how we store it in MySQL)
-    )) || {};
-
-  return rows && Array.isArray(rows) && rows.length > 0
-    ? (rows[0] as {
-        id: string;
-        domain: string;
-        key: string;
-        url: string;
-        proxy: number;
-        title: string;
-        description: string;
-        image: string;
-        rewrite: number;
-        password: string | null;
-        expiresAt: string | null;
-        ios: string | null;
-        android: string | null;
-        geo: object | null;
-        projectId: string;
-        publicStats: number;
-      })
-    : null;
+  const rows = await queryDatabase("SELECT * FROM Link WHERE domain = $1 AND key = $2", [domain, punyEncode(decodeURIComponent(key))]);
+  return rows.length > 0 ? rows[0] as {
+    id: string;
+    domain: string;
+    key: string;
+    url: string;
+    proxy: number;
+    title: string;
+    description: string;
+    image: string;
+    rewrite: number;
+    password: string | null;
+    expiresAt: string | null;
+    ios: string | null;
+    android: string | null;
+    geo: object | null;
+    projectId: string;
+    publicStats: number;
+  } : null;
 };
-
-export async function getDomainOrLink({
-  domain,
-  key,
-}: {
-  domain: string;
-  key?: string;
-}) {
-  if (!key || key === "_root") {
-    const data = await getDomainViaEdge(domain);
-    if (!data) return null;
-    return {
-      ...data,
-      key: "_root",
-      url: data?.target,
-    };
-  } else {
-    return await getLinkViaEdge(domain, key);
-  }
-}
 
 export async function getRandomKey({
   domain,
@@ -117,14 +72,12 @@ export async function getRandomKey({
   prefix?: string;
   long?: boolean;
 }): Promise<string> {
-  /* recursively get random key till it gets one that's available */
   let key = long ? nanoid(69) : nanoid();
   if (prefix) {
     key = `${prefix.replace(/^\/|\/$/g, "")}/${key}`;
   }
   const exists = await checkIfKeyExists(domain, key);
   if (exists) {
-    // by the off chance that key already exists
     return getRandomKey({ domain, prefix, long });
   } else {
     return key;

@@ -23,5 +23,8 @@
     "tsconfig": "workspace:*",
     "turbo": "^1.12.5"
   },
-  "packageManager": "pnpm@8.6.10"
+  "packageManager": "pnpm@8.6.10",
+  "dependencies": {
+    "pg": "^8.11.5"
+  }
 }
