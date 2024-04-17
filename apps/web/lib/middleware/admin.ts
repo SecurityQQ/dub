@@ -2,7 +2,7 @@ import { parse } from "@/lib/middleware/utils";
 import { DUB_WORKSPACE_ID } from "@dub/utils";
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
-import { conn } from "../planetscale";
+import { queryDatabase } from "../planetscale";
 import { UserProps } from "../types";
 
 export default async function AdminMiddleware(req: NextRequest) {
@@ -18,8 +18,7 @@ export default async function AdminMiddleware(req: NextRequest) {
     user?: UserProps;
   };
 
-  const response = await conn
-    .execute("SELECT projectId FROM ProjectUsers WHERE userId = ?", [
+  const response = await queryDatabase("SELECT projectId FROM ProjectUsers WHERE userId = ?", [
       session?.user?.id,
     ])
     .then((res) => res.rows[0] as { projectId: string } | undefined);
