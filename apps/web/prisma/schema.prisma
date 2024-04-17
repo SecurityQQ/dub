@@ -316,7 +316,7 @@ model jackson_index {
 }
 
 model jackson_store {
-  key        String    @id @db.VarChar(1050)
+  key        String    @id @db.VarChar(1500)
   value      String    @db.Text
   iv         String?   @db.VarChar(64)
   tag        String?   @db.VarChar(64)
