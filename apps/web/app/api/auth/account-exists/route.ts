@@ -1,5 +1,5 @@
 import { isWhitelistedEmail } from "@/lib/edge-config";
-import { DATABASE_URL, queryDatabase } from "@/lib/planetscale";
+import { DATABASE_URL, supabase } from "@/lib/planetscale";
 import { ratelimit } from "@/lib/upstash";
 import { ipAddress } from "@vercel/edge";
 import { NextRequest, NextResponse } from "next/server";
@@ -25,8 +25,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ exists: true });
   }
 
-  const user = await queryDatabase("SELECT email FROM User WHERE email = ?", [email])
-    .then((res) => res.rows[0]);
+  const { data, error } = await supabase
+    .from('User')
+    .select('email')
+    .eq('email', email)
+    .single();  // Assuming you are expecting only one record back
+
+  if (error) {
+      console.error('Error fetching user:', error.message);
+      return new Response("Database error", {
+      status: 500,
+    });
+  }
+
+  const user = data;
 
   if (user) {
     return NextResponse.json({ exists: true });
