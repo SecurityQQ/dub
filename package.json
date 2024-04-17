@@ -25,7 +25,6 @@
   },
   "packageManager": "pnpm@8.6.10",
   "dependencies": {
-    "pg": "^8.11.5",
-    "pg-native": "^3.0.1"
+    "pg": "^8.11.5"
   }
 }
