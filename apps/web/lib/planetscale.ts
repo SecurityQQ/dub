@@ -3,6 +3,9 @@ import { DomainProps, WorkspaceProps } from "./types";
 import { createClient } from '@supabase/supabase-js';
 
 
+export const DATABASE_URL = process.env.DATABASE_URL;
+
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
