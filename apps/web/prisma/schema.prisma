@@ -4,6 +4,7 @@
 datasource db {
   provider     = "postgresql" // Changed from "mysql" to "postgresql"
   url          = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
   relationMode = "prisma"
 }
 
