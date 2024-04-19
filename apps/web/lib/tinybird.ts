@@ -103,7 +103,7 @@ export async function recordClick({
         supabase
           .from('Domain')
           .update({ 
-            clicks: supabase.rpc('increment_clicks', { domain_id: id }),  // Custom RPC function to increment clicks
+            clicks: supabase.rpc('increment_clicks_domain', { domain_id: id }),  // Custom RPC function to increment clicks
             lastClicked: new Date().toISOString()  // Using JavaScript to generate timestamp
           })
           .eq('id', id),
@@ -114,7 +114,7 @@ export async function recordClick({
         supabase
           .from('Link')
           .update({ 
-            clicks: supabase.rpc('increment_clicks', { link_id: id }),  // Custom RPC function to increment clicks
+            clicks: supabase.rpc('increment_clicks_link', { link_id: id }),  // Custom RPC function to increment clicks
             lastClicked: new Date().toISOString()  // Using JavaScript to generate timestamp
           })
           .eq('id', id),
