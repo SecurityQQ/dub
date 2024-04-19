@@ -100,26 +100,11 @@ export async function recordClick({
     // also increment the usage count for the workspace
     // and then we have a cron that will reset it at the start of new billing cycle
     root ? [
-        supabase
-          .from('Domain')
-          .update({ 
-            clicks: supabase.rpc('increment_clicks_domain', { domain_id: id }),  // Custom RPC function to increment clicks
-            lastClicked: new Date().toISOString()  // Using JavaScript to generate timestamp
-          })
-          .eq('id', id),
-        url &&
-        supabase
-          .rpc('increment_project_usage', { domain_id: id })
+        supabase.rpc('increment_clicks_domain', { domain_id: id }),
+        url && supabase.rpc('increment_project_usage_domain', { domain_id: id })
     ] : [
-        supabase
-          .from('Link')
-          .update({ 
-            clicks: supabase.rpc('increment_clicks_link', { link_id: id }),  // Custom RPC function to increment clicks
-            lastClicked: new Date().toISOString()  // Using JavaScript to generate timestamp
-          })
-          .eq('id', id),
-        supabase
-          .rpc('increment_project_usage', { link_id: id })
+        supabase.rpc('increment_clicks_link', { link_id: id }),
+        supabase.rpc('increment_project_usage_link', { link_id: id })
     ],
   ]);
 }
