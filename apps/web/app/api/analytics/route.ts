@@ -10,8 +10,7 @@ const updatePublicStatsSchema = z.object({
 });
 
 // GET /api/analytics – get the publicStats setting for a link
-// export const GET = withAuth(async ({ searchParams }) => {
-export const GET = (async ({ searchParams }) => {
+export const GET = withAuth(async ({ searchParams }) => {
   const { domain, key } = domainKeySchema.parse(searchParams);
   const response = await getDomainOrLink({ domain, key });
   return NextResponse.json(response);
