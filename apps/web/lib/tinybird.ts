@@ -47,6 +47,18 @@ export async function recordClick({
     }
   }
 
+
+  // increment the click count for the link or domain (based on their ID)
+  // also increment the usage count for the workspace
+  // and then we have a cron that will reset it at the start of new billing cycle
+  const supabaseActions = root ? [
+        supabase.rpc('increment_clicks_domain', { domain_id: id }),
+        url ? supabase.rpc('increment_project_usage_domain', { domain_id: id }) : null,
+      ] : [
+        supabase.rpc('increment_clicks_link', { link_id: id }),
+        supabase.rpc('increment_project_usage_link', { link_id: id }),
+      ].filter(Boolean);  // Filters out any nulls in case url is not provided
+
   return await Promise.allSettled([
     fetch(
       `${process.env.TINYBIRD_API_URL}/v0/events?name=dub_click_events&wait=true`,
@@ -96,16 +108,7 @@ export async function recordClick({
       },
     ).then((res) => res.json()),
 
-    // increment the click count for the link or domain (based on their ID)
-    // also increment the usage count for the workspace
-    // and then we have a cron that will reset it at the start of new billing cycle
-    root ? [
-        supabase.rpc('increment_clicks_domain', { domain_id: id }),
-        url && supabase.rpc('increment_project_usage_domain', { domain_id: id })
-    ] : [
-        supabase.rpc('increment_clicks_link', { link_id: id }),
-        supabase.rpc('increment_project_usage_link', { link_id: id })
-    ],
+    ...supabaseActions
   ]);
 }
 
